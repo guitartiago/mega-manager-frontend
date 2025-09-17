@@ -28,6 +28,7 @@ import { HasAnyRoleDirective, HasRoleDirective } from "../../../core/auth/has-ro
           <tr>
             <th class="text-left p-3">Nome</th>
             <th class="text-left p-3">Email</th>
+            <th class="text-left p-3">Celular</th>
             <th class="text-left p-3">Perfil</th>
             <th class="text-right p-3">Ações</th>
           </tr>
@@ -36,6 +37,7 @@ import { HasAnyRoleDirective, HasRoleDirective } from "../../../core/auth/has-ro
           <tr *ngFor="let c of filtered()" class="border-t">
             <td class="p-3">{{ c.nome }}</td>
             <td class="p-3">{{ c.email }}</td>
+            <td class="p-3">{{ formatCelular(c.celular) }}</td>
             <td class="p-3">
               <span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">{{ c.perfil }}</span>
             </td>
@@ -103,4 +105,14 @@ export class ClientesListComponent implements OnInit {
       error: (e) => console.error(e),
     });
   }
+
+  formatCelular(raw: string) {
+    if (!raw) return '';
+    if (raw.length === 8) return raw.replace(/(\d{4})(\d{4})/, '$1-$2'); // fixo sem 9
+    if (raw.length === 9) return raw.replace(/(\d{5})(\d{4})/, '$1-$2'); // celular sem DDD
+    if (raw.length === 10) return raw.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3'); // fixo com DDD
+    if (raw.length === 11) return raw.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3'); // celular com DDD
+    return raw;
+  }
+
 }

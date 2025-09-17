@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TokenStorage } from '../../../core/auth/token-storage';
+import { finalize } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -38,11 +39,17 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    this.loading.set(true); this.error.set(null);
-    this.auth.login({ username: this.username, password: this.password }).subscribe({
-      next: (res) => { this.token.set(res.token); this.router.navigateByUrl('/'); },
-      error: () => this.error.set('Falha no login.'),
-      complete: () => this.loading.set(false),
-    });
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.auth.login({ username: this.username, password: this.password })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (res) => { this.token.set(res.token); this.router.navigateByUrl('/'); },
+        error: (err) => { 
+          console.error(err);
+          this.error.set('Falha no login.');
+        },
+      });
   }
 }

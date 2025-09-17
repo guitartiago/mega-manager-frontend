@@ -18,7 +18,8 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError(err => {
-      if (err.status === 401 || err.status === 403) {
+      const isAuthLogin = req.url.includes('/auth/login'); // ajuste conforme seu path
+      if ((err.status === 401 || err.status === 403) && !isAuthLogin) {
         token.clear();
         router.navigate(['/login']);
       }

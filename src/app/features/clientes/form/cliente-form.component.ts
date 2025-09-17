@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,51 +9,17 @@ import { ClienteRequestDTO, ClienteResponseDTO, Perfil } from '../clientes.model
   standalone: true,
   selector: 'app-cliente-form',
   imports: [CommonModule, ReactiveFormsModule],
-  template: `
-  <section class="max-w-xl grid gap-4">
-    <h2 class="text-2xl font-bold">{{ isEdit() ? 'Editar cliente' : 'Novo cliente' }}</h2>
-
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grid gap-3 bg-white p-4 rounded-xl border shadow-sm">
-      <div>
-        <label class="block text-sm text-gray-600 mb-1">Nome *</label>
-        <input formControlName="nome" class="w-full p-2 border rounded" required>
-        <p class="text-xs text-red-600" *ngIf="form.controls.nome.touched && form.controls.nome.invalid">
-          Informe o nome.
-        </p>
-      </div>
-
-      <div>
-        <label class="block text-sm text-gray-600 mb-1">Email *</label>
-        <input formControlName="email" type="email" class="w-full p-2 border rounded" required>
-        <p class="text-xs text-red-600" *ngIf="form.controls.email.touched && form.controls.email.invalid">
-          Email inválido.
-        </p>
-      </div>
-
-      <div>
-        <label class="block text-sm text-gray-600 mb-1">Perfil *</label>
-        <select formControlName="perfil" class="w-full p-2 border rounded" required>
-          <option *ngFor="let p of perfis" [value]="p">{{ p }}</option>
-        </select>
-      </div>
-
-      <div class="flex justify-end gap-2">
-        <button type="button" (click)="router.navigate(['/clientes'])"
-                class="px-3 py-2 rounded border hover:bg-gray-50">Cancelar</button>
-        <button type="submit" [disabled]="form.invalid || saving()"
-                class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
-          {{ saving() ? 'Salvando...' : 'Salvar' }}
-        </button>
-      </div>
-    </form>
-  </section>
-  `
+  templateUrl: './cliente-form.component.html'
 })
 export class ClienteFormComponent implements OnInit {
+  @ViewChild('celInput') celInput!: ElementRef<HTMLInputElement>;
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   router = inject(Router);
   private svc = inject(ClientesService);
+
+  // 8–11 dígitos OU (11) 91234-5678 / 99123-4567 etc.
+  CELULAR_PATTERN = /^(?:\d{8,11}|(?:\(?\d{2}\)?\s?)?\d{4,5}-?\d{4})$/;
 
   perfis: Perfil[] = ['COMUM','SOCIO','PARCEIRO'];
   isEdit = signal(false);
@@ -63,6 +29,7 @@ export class ClienteFormComponent implements OnInit {
   form = this.fb.group({
     nome: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
+    celular: ['', [Validators.required, Validators.pattern(this.CELULAR_PATTERN)]],
     perfil: ['COMUM' as Perfil, Validators.required],
   });
 
@@ -72,9 +39,18 @@ export class ClienteFormComponent implements OnInit {
       this.isEdit.set(true);
       this.id = Number(idParam);
       this.svc.get(this.id).subscribe({
-        next: (c: ClienteResponseDTO) => this.form.patchValue({
-          nome: c.nome, email: c.email, perfil: c.perfil
-        }),
+        next: (c: ClienteResponseDTO) => {
+          this.form.patchValue({
+          nome: c.nome, 
+          email: c.email, 
+          celular: this.maskDisplay(c.celular), 
+          perfil: c.perfil
+          });
+          queueMicrotask(() => {
+            const el = this.celInput?.nativeElement;
+            if (el) el.value = this.maskDisplay(this.form.controls.celular.value || '');
+          });
+        },
         error: (e) => console.error(e),
       });
     }
@@ -85,6 +61,7 @@ export class ClienteFormComponent implements OnInit {
     this.saving.set(true);
 
     const payload = this.form.getRawValue() as ClienteRequestDTO;
+    payload.celular = (payload.celular || '').replace(/\D/g, '');
 
     const req$ = this.isEdit() && this.id
       ? this.svc.update(this.id, payload)
@@ -95,4 +72,44 @@ export class ClienteFormComponent implements OnInit {
       error: (e) => { console.error(e); this.saving.set(false); },
     });
   }
+
+  onCelularInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let digits = input.value.replace(/\D/g, '').slice(0, 11);
+
+    // máscara de exibição
+    let masked = digits;
+    if (digits.length <= 8)       
+      masked = digits.replace(/(\d{4})(\d{0,4})/, '$1-$2').trim();
+    else if (digits.length === 9) 
+      masked = digits.replace(/(\d{5})(\d{0,4})/, '$1-$2').trim();
+    else if (digits.length === 10)
+      masked = digits.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').trim();
+    else                          
+      masked = digits.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').trim();
+
+    // o FormControl deve ficar com o MESMO valor exibido
+    this.form.controls.celular.setValue(masked, { emitEvent: false });
+    input.value = masked; // mantém a aparência
+  }
+
+  // Máscara de exibição (com/sem DDD)
+  private maskDisplay(raw: string): string {
+    if (!raw) return '';
+    if (raw.length <= 8) {
+      // 99123456 -> 9912-3456
+      return raw.replace(/(\d{4})(\d{0,4})/, '$1-$2').trim();
+    }
+    if (raw.length === 9) {
+      // 991234567 -> 99123-4567
+      return raw.replace(/(\d{5})(\d{0,4})/, '$1-$2').trim();
+    }
+    if (raw.length === 10) {
+      // 1199123456 -> (11) 9912-3456
+      return raw.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').trim();
+    }
+    // 11 dígitos: 11991234567 -> (11) 99123-4567
+    return raw.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').trim();
+  }
+
 }

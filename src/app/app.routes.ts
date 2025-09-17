@@ -27,7 +27,22 @@ export const routes: Routes = [
         , loadComponent: () => import('./features/clientes/form/cliente-form.component').then(m => m.ClienteFormComponent) 
         , canActivate: [roleGuard]
         , data: { roles: ['ADMIN', 'USER'] }
-      }
+      },
+      { path: 'produtos'
+        , loadComponent: () => import('./features/produtos/list/produtos-list.component').then(m => m.ProdutosListComponent)
+        , canActivate: [roleGuard]
+        , data: { roles: ['ADMIN', 'USER'] }
+      },
+      { path: 'produtos/new'
+        , loadComponent: () => import('./features/produtos/form/produto-form.component').then(m => m.ProdutoFormComponent)
+        , canActivate: [roleGuard]
+        , data: { roles: ['ADMIN'] }
+      },
+      { path: 'produtos/:id/edit'
+        , loadComponent: () => import('./features/produtos/form/produto-form.component').then(m => m.ProdutoFormComponent)
+        , canActivate: [roleGuard]
+        , data: { roles: ['ADMIN'] }
+      },      
     ]
   },
   { path: '**', redirectTo: '' }

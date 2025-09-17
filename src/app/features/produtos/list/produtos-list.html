@@ -1,0 +1,44 @@
+<section class="grid gap-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-bold">Produtos</h2>
+    <a routerLink="/produtos/new" class="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Novo produto</a>
+  </div>
+
+  <input #nomeInput
+    class="w-full max-w-md p-2 border rounded"
+    placeholder="Buscar por nome..."
+    [value]="q()" (input)="q.set(nomeInput.value)"
+  />
+
+  <div class="rounded-xl border bg-white shadow-sm overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600">
+        <tr>
+          <th class="text-left p-3">Nome</th>
+          <th class="text-left p-3">Preço de venda</th>
+          <th class="text-left p-3">Ativo</th>
+          <th class="text-right p-3">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filtered()" class="border-t">
+          <td class="p-3">{{ p.nome }}</td>
+          <td class="p-3">{{ formatBRL(p.precoVenda) }}</td>
+          <td class="p-3">
+            <span class="px-2 py-1 rounded text-xs" [class.bg-green-100]="p.ativo" [class.text-green-700]="p.ativo"
+                  [class.bg-gray-100]="!p.ativo" [class.text-gray-700]="!p.ativo">
+              {{ p.ativo ? 'Sim' : 'Não' }}
+            </span>
+          </td>
+          <td class="p-3 text-right">
+            <a [routerLink]="['/produtos', p.id, 'edit']" class="text-blue-600 hover:underline mr-3">Editar</a>
+            <button (click)="remove(p.id)" class="text-red-600 hover:underline">Excluir</button>
+          </td>
+        </tr>
+        <tr *ngIf="!loading() && filtered().length === 0">
+          <td colspan="4" class="p-6 text-center text-gray-500">Nenhum produto encontrado.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
