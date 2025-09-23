@@ -42,7 +42,17 @@ export const routes: Routes = [
         , loadComponent: () => import('./features/produtos/form/produto-form.component').then(m => m.ProdutoFormComponent)
         , canActivate: [roleGuard]
         , data: { roles: ['ADMIN'] }
-      },      
+      },
+      { path: 'estoque/entrada'
+        , loadComponent: () => import('./features/estoque/entrada/entrada-estoque.component').then(m => m.EntradaEstoqueComponent)
+        , canActivate: [roleGuard]
+        , data: { roles: ['ADMIN', 'USER'] }
+      },
+      { path: 'estoque/visualizar'
+        , loadComponent: () => import('./features/estoque/visualizar/visualizar-estoque.component').then(m => m.VisualizarEstoqueComponent)
+        , canActivate: [roleGuard]
+        , data: { roles: ['ADMIN', 'USER'] }
+      }   
     ]
   },
   { path: '**', redirectTo: '' }

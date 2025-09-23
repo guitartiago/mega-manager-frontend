@@ -1,0 +1,53 @@
+
+<form [formGroup]="form" (ngSubmit)="salvar()" class="grid gap-4">
+    <h2 class="text-2xl font-bold">Entrada de estoque</h2>
+
+    <div formArrayName="itens" class="grid gap-3">
+        <div *ngFor="let _ of itens.controls; let ix = index"
+            [formGroupName]="ix"
+            class="grid gap-3 p-4 rounded-xl border bg-white shadow-sm">
+
+        <div class="grid md:grid-cols-3 gap-3 items-end">
+            <!-- Produto -->
+            <div>
+            <label class="block text-sm text-gray-600 mb-1">Produto *</label>
+            <select class="w-full p-2 border rounded" formControlName="produtoId">
+                <option [ngValue]="null" disabled>Selecione...</option>
+                <option *ngFor="let p of produtos()" [ngValue]="p.id">{{ p.nome }}</option>
+            </select>
+            </div>
+
+            <!-- Quantidade -->
+            <div>
+            <label class="block text-sm text-gray-600 mb-1">Quantidade *</label>
+            <input type="number" min="1" class="w-full p-2 border rounded" formControlName="quantidade">
+            </div>
+
+            <!-- Custo unitário -->
+            <div>
+            <label class="block text-sm text-gray-600 mb-1">Preço de custo unitário *</label>
+            <input class="w-full p-2 border rounded" placeholder="0,00"
+                    formControlName="precoCustoUnitario"
+                    (input)="onCustoInput(form.get(['itens', ix, 'precoCustoUnitario']), $event)">
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="button" class="text-red-600 hover:underline"
+                    *ngIf="itens.length > 1" (click)="removeItem(ix)">Remover</button>
+        </div>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+        <button type="button" class="px-3 py-2 rounded border hover:bg-gray-50" (click)="addItem()">Adicionar item</button>
+        <button type="submit" class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                [disabled]="form.invalid || salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+        </button>
+    </div>
+
+    <p *ngIf="sucesso()" class="text-green-700">Entradas salvas com sucesso.</p>
+    <p *ngIf="erro()" class="text-red-600">{{ erro() }}</p>
+</form>
+

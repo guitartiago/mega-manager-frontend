@@ -1,0 +1,60 @@
+<section class="grid gap-4">
+  <h2 class="text-2xl font-bold">Visualizar estoque</h2>
+
+  <!-- O formGroup precisa englobar o select que usa formControlName -->
+  <form [formGroup]="form" class="grid gap-4">
+    <div class="max-w-md">
+      <label class="block text-sm text-gray-600 mb-1">Produto</label>
+      <select class="w-full p-2 border rounded" formControlName="produtoId">
+        <option [ngValue]="null" disabled>Selecione...</option>
+        <option *ngFor="let p of produtos()" [ngValue]="p.id">{{ p.nome }}</option>
+      </select>
+    </div>
+  </form>
+
+  <ng-container *ngIf="produtoSelecionado() as prod">
+    <div class="grid md:grid-cols-3 gap-3">
+      <div class="p-4 rounded-xl border bg-white shadow-sm">
+        <div class="text-sm text-gray-500">Produto</div>
+        <div class="text-lg font-semibold">{{ prod.nome }}</div>
+      </div>
+      <div class="p-4 rounded-xl border bg-white shadow-sm">
+        <div class="text-sm text-gray-500">Preço de venda</div>
+        <div class="text-lg font-semibold">{{ formatBRL(prod.precoVenda) }}</div>
+      </div>
+      <div class="p-4 rounded-xl border bg-white shadow-sm">
+        <div class="text-sm text-gray-500">Saldo total</div>
+        <div class="text-lg font-semibold">{{ totalQuantidade() }}</div>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border bg-white shadow-sm">
+      <div class="text-sm text-gray-500">Custo médio (aprox.)</div>
+      <div class="text-lg font-semibold">{{ formatBRL(custoMedio()) }}</div>
+    </div>
+
+    <div class="rounded-xl border bg-white shadow-sm overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600">
+          <tr>
+            <th class="text-left p-3">Data compra</th>
+            <th class="text-right p-3">Qtd</th>
+            <th class="text-right p-3">Preço custo (unit.)</th>
+            <th class="text-right p-3">Saldo da entrada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of entradas()" class="border-t">
+            <td class="p-3">{{ formatDate(e.dataCompra) }}</td>
+            <td class="p-3 text-right">{{ e.quantidade }}</td>
+            <td class="p-3 text-right">{{ formatBRL(e.precoCustoUnitario) }}</td>
+            <td class="p-3 text-right">{{ e.saldo }}</td>
+          </tr>
+          <tr *ngIf="!carregando() && entradas().length === 0">
+            <td colspan="4" class="p-6 text-center text-gray-500">Nenhuma entrada encontrada.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</section>

@@ -13,45 +13,11 @@ import { TokenStorage } from '../core/auth/token-storage';
         <div class="font-semibold text-lg">MegaManager</div>
 
         <nav class="flex items-center space-x-6 text-sm text-gray-600">
-          <!-- Home -->
-          <a routerLink="/"
-             routerLinkActive="text-blue-600 border-b-2 border-blue-600"
-             [routerLinkActiveOptions]="{ exact: true }"
-             class="flex items-center gap-1 hover:text-black transition-colors pb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 
-                    .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504
-                     1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-
-            Home
-          </a>
-
-          <!-- Clientes -->
-          <a routerLink="/clientes"
-             routerLinkActive="text-blue-600 border-b-2 border-blue-600"
-             class="flex items-center gap-1 hover:text-black transition-colors pb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.243.72 5.879 1.929M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Clientes
-          </a>
-
-          <!-- Produtos -->
-          <a routerLink="/produtos"
-             routerLinkActive="text-blue-600 border-b-2 border-blue-600"
-             class="flex items-center gap-1 hover:text-black transition-colors pb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M20 13V6a2 2 0 00-2-2h-5v4H5v2h8v3h5a2 2 0 002-2z" />
-            </svg>
-            Produtos
-          </a>
+          <a routerLink="/" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Home</a>
+          <a routerLink="/clientes" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Clientes</a>
+          <a routerLink="/produtos" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Produtos</a>
+          <a routerLink="/estoque/entrada" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Entrada de estoque</a>
+          <a routerLink="/estoque/visualizar" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Visualizar estoque</a>
 
           <!-- Logout -->
           <button (click)="logout()" type="button"
