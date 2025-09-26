@@ -52,7 +52,10 @@ export const routes: Routes = [
         , loadComponent: () => import('./features/estoque/visualizar/visualizar-estoque.component').then(m => m.VisualizarEstoqueComponent)
         , canActivate: [roleGuard]
         , data: { roles: ['ADMIN', 'USER'] }
-      }   
+      },
+      { path: 'consumos',            loadComponent: () => import('./features/consumos/consumos-home.component').then(m => m.ConsumosHomeComponent) },
+      { path: 'consumos/novo',       loadComponent: () => import('./features/consumos/registrar-consumo.component').then(m => m.RegistrarConsumoComponent) },
+      { path: 'consumos/:clienteId', loadComponent: () => import('./features/consumos/conta-detalhes.component').then(m => m.ContaDetalhesComponent) },   
     ]
   },
   { path: '**', redirectTo: '' }
