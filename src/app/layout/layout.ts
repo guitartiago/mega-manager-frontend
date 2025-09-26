@@ -1,50 +1,115 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { TokenStorage } from '../core/auth/token-storage';
+import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
-    <div class="min-h-svh bg-gray-50">
-      <!-- Header -->
-      <header class="h-14 px-4 flex items-center justify-between bg-white shadow">
-        <div class="font-semibold text-lg">MegaManager</div>
+  <div class="min-h-svh bg-gray-100">
+    <!-- Navbar -->
+    <header class="bg-white border-b">
+      <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+        <!-- Brand -->
+        <a routerLink="/" class="font-semibold tracking-tight">MegaManager</a>
 
-        <nav class="flex items-center space-x-6 text-sm text-gray-600">
-          <a routerLink="/" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Home</a>
-          <a routerLink="/clientes" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Clientes</a>
-          <a routerLink="/produtos" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Produtos</a>
-          <a routerLink="/estoque/entrada" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Entrada de estoque</a>
-          <a routerLink="/estoque/visualizar" routerLinkActive="text-blue-600 font-semibold" class="hover:text-black">Visualizar estoque</a>
+        <!-- Desktop nav -->
+        <nav class="hidden md:flex items-center gap-4 text-sm">
+          <a routerLink="/" routerLinkActive="text-blue-700 font-medium" [routerLinkActiveOptions]="{ exact: true }"
+             class="hover:text-black text-gray-700">Home</a>
 
-          <!-- Logout -->
-          <button (click)="logout()" type="button"
-                  class="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors pb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+          <a routerLink="/clientes" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Clientes</a>
+
+          <a routerLink="/produtos" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Produtos</a>
+
+          <a routerLink="/estoque/entrada" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Entrada de estoque</a>
+
+          <a routerLink="/estoque/visualizar" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Visualizar estoque</a>
+
+          <!-- NOVO: Consumos -->
+          <a routerLink="/consumos" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Consumos</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <!-- Logout (placeholder) -->
+          <button class="hidden md:inline-flex text-red-600 hover:text-red-700 text-sm"
+                  (click)="logout()">Sair</button>
+
+          <!-- Mobile burger -->
+          <button class="md:hidden inline-flex items-center justify-center p-2 rounded hover:bg-gray-100"
+                  aria-label="Abrir menu" (click)="toggleMobile()">
+            <svg *ngIf="!mobileOpen()" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                  viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            Sair
+            <svg *ngIf="mobileOpen()" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-        </nav>
-      </header>
+        </div>
+      </div>
 
-      <!-- Conteúdo -->
-      <main class="p-4 max-w-6xl mx-auto">
-        <router-outlet />
-      </main>
-    </div>
+      <!-- Mobile menu -->
+      <div *ngIf="mobileOpen()" class="md:hidden border-t bg-white">
+        <nav class="px-4 py-2 grid gap-1 text-sm">
+          <a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Home</a>
+
+          <a routerLink="/clientes" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Clientes</a>
+
+          <a routerLink="/produtos" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Produtos</a>
+
+          <a routerLink="/estoque/entrada" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Entrada de estoque</a>
+
+          <a routerLink="/estoque/visualizar" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Visualizar estoque</a>
+
+          <!-- NOVO: Consumos -->
+          <a routerLink="/consumos" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Consumos</a>
+
+          <hr class="my-2">
+          <button class="text-left text-red-600 px-2 py-2 rounded hover:bg-red-50"
+                  (click)="logout(); closeMobile()">Sair</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <router-outlet />
+    </main>
+  </div>
   `,
 })
 export class LayoutComponent {
-  private token = inject(TokenStorage);
   private router = inject(Router);
 
+  mobileOpen = signal(false);
+
+  toggleMobile() { this.mobileOpen.update(v => !v); }
+  closeMobile() { this.mobileOpen.set(false); }
+
+  constructor() {
+    // fecha o menu ao navegar
+    this.router.events.subscribe(() => this.mobileOpen.set(false));
+  }
+
   logout() {
-    this.token.clear();
-    this.router.navigateByUrl('/login');
+    // TODO: limpe o token e redirecione
+    // ex.: this.token.clear(); this.router.navigate(['/login']);
+    this.router.navigate(['/login']);
   }
 }
