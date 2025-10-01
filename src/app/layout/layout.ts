@@ -1,39 +1,43 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { TokenStorage } from '../core/auth/token-storage';
+import { ToastHostComponent } from '../shared/ui/alert/alert-host';
 
 @Component({
   standalone: true,
   selector: 'app-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ToastHostComponent],
   template: `
   <div class="min-h-svh bg-gray-100">
     <!-- Navbar -->
     <header class="bg-white border-b">
       <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
         <!-- Brand -->
-        <a routerLink="/" class="font-semibold tracking-tight">MegaManager</a>
+        <a routerLink="/" class="inline-flex items-center gap-2 shrink-0" aria-label="MegaManager – início">
+          <img src="/assets/logo-megamanager.png"
+              alt="MegaManager"
+              class="h-7 md:h-8 w-auto select-none" />
+          <span class="sr-only">MegaManager</span>
+        </a>
 
         <!-- Desktop nav -->
         <nav class="hidden md:flex items-center gap-4 text-sm">
           <a routerLink="/" routerLinkActive="text-blue-700 font-medium" [routerLinkActiveOptions]="{ exact: true }"
              class="hover:text-black text-gray-700">Home</a>
 
+          <a routerLink="/consumos" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Consumos</a>
+
           <a routerLink="/clientes" routerLinkActive="text-blue-700 font-medium"
              class="hover:text-black text-gray-700">Clientes</a>
 
           <a routerLink="/produtos" routerLinkActive="text-blue-700 font-medium"
              class="hover:text-black text-gray-700">Produtos</a>
-
-          <a routerLink="/estoque/entrada" routerLinkActive="text-blue-700 font-medium"
-             class="hover:text-black text-gray-700">Entrada de estoque</a>
-
+             
           <a routerLink="/estoque/visualizar" routerLinkActive="text-blue-700 font-medium"
-             class="hover:text-black text-gray-700">Visualizar estoque</a>
-
-          <!-- NOVO: Consumos -->
-          <a routerLink="/consumos" routerLinkActive="text-blue-700 font-medium"
-             class="hover:text-black text-gray-700">Consumos</a>
+             class="hover:text-black text-gray-700">Estoque</a>
+          
         </nav>
 
         <div class="flex items-center gap-3">
@@ -63,22 +67,18 @@ import { CommonModule } from '@angular/common';
         <nav class="px-4 py-2 grid gap-1 text-sm">
           <a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="bg-gray-100 font-medium"
              class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Home</a>
-
+          
+          <a routerLink="/consumos" routerLinkActive="bg-gray-100 font-medium"
+            class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Consumos</a>
+             
           <a routerLink="/clientes" routerLinkActive="bg-gray-100 font-medium"
              class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Clientes</a>
 
           <a routerLink="/produtos" routerLinkActive="bg-gray-100 font-medium"
              class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Produtos</a>
 
-          <a routerLink="/estoque/entrada" routerLinkActive="bg-gray-100 font-medium"
-             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Entrada de estoque</a>
-
           <a routerLink="/estoque/visualizar" routerLinkActive="bg-gray-100 font-medium"
-             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Visualizar estoque</a>
-
-          <!-- NOVO: Consumos -->
-          <a routerLink="/consumos" routerLinkActive="bg-gray-100 font-medium"
-             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Consumos</a>
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Estoque</a>
 
           <hr class="my-2">
           <button class="text-left text-red-600 px-2 py-2 rounded hover:bg-red-50"
@@ -90,11 +90,13 @@ import { CommonModule } from '@angular/common';
     <!-- Conteúdo -->
     <main class="max-w-6xl mx-auto px-4 py-6">
       <router-outlet />
+      <app-toast-host></app-toast-host>
     </main>
   </div>
   `,
 })
 export class LayoutComponent {
+  private token = inject(TokenStorage);
   private router = inject(Router);
 
   mobileOpen = signal(false);
@@ -108,8 +110,7 @@ export class LayoutComponent {
   }
 
   logout() {
-    // TODO: limpe o token e redirecione
-    // ex.: this.token.clear(); this.router.navigate(['/login']);
-    this.router.navigate(['/login']);
+    this.token.clear();
+    this.router.navigateByUrl('/login');
   }
 }

@@ -1,6 +1,9 @@
 
 <form [formGroup]="form" (ngSubmit)="salvar()" class="grid gap-4">
-    <h2 class="text-2xl font-bold">Entrada de estoque</h2>
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">Entrada de estoque</h2>
+        <a routerLink="/estoque/visualizar" class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">← Voltar</a>
+    </div>
 
     <div formArrayName="itens" class="grid gap-3">
         <div *ngFor="let _ of itens.controls; let ix = index"

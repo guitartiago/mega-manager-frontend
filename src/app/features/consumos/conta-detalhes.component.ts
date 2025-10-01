@@ -21,7 +21,7 @@ type GrupoDiaAgg = { data: string; linhas: LinhaAgg[]; subtotal: number };
   <section class="grid gap-4">
     <div class="flex items-center justify-between">
       <h2 class="text-2xl font-bold">Detalhes da conta</h2>
-      <a routerLink="/consumos" class="text-sm text-blue-600 hover:underline">← Voltar</a>
+      <a routerLink="/consumos" class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">← Voltar</a>
     </div>
 
     <div *ngIf="conta()" class="p-4 rounded-xl border bg-white shadow-sm">
@@ -40,8 +40,13 @@ type GrupoDiaAgg = { data: string; linhas: LinhaAgg[]; subtotal: number };
         </div>
       </div>
 
-      <div class="mt-3">
-        <button class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+      <div class="mt-3 flex gap-2">
+        <a class="px-3 py-2 rounded border hover:bg-gray-50"
+            [routerLink]="['/consumos/novo']"
+            [queryParams]="{ clienteId: conta()?.clienteId }">
+          Adicionar consumo
+        </a>
+        <button class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 ml-auto"
                 [disabled]="fechando() || !conta() || conta()!.itens.length===0"
                 (click)="confirmarFechamento()">
           {{ fechando() ? 'Processando...' : 'Fechar conta' }}
@@ -57,16 +62,16 @@ type GrupoDiaAgg = { data: string; linhas: LinhaAgg[]; subtotal: number };
         <table class="min-w-full text-sm">
           <thead class="bg-gray-50 text-gray-600">
             <tr>
-              <th class="text-left p-3">Produto</th>
-              <th class="text-right p-3">Qtd</th>
-              <th class="text-right p-3">VU</th>
-              <th class="text-right p-3">Total</th>
+              <th class="text-left p-3 w-1/2">Produto</th>
+              <th class="text-center p-3 w-1/12">Qtd</th>
+              <th class="text-right p-3 w-1/6">VU</th>
+              <th class="text-right p-3 w-1/6">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let l of g.linhas" class="border-t">
               <td class="p-3">{{ l.nomeProduto }}</td>
-              <td class="p-3 text-right">{{ l.quantidade }}</td>
+              <td class="p-3 text-center">{{ l.quantidade }}</td>
               <td class="p-3 text-right">{{ brl(l.valorUnitario) }}</td>
               <td class="p-3 text-right font-medium">{{ brl(l.valorTotal) }}</td>
             </tr>

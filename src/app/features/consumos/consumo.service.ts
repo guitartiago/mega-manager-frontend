@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { ConsumoRequestDTO, ConsumoResponseDTO, DetalheContaDTO } from './consumo.model';
-import { map } from 'rxjs';
+import { map, forkJoin, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ConsumoService {
@@ -12,6 +12,11 @@ export class ConsumoService {
   /** Registrar consumo */
   registrar(payload: ConsumoRequestDTO) {
     return this.http.post<ConsumoResponseDTO>(`${this.base}/consumos`, payload);
+  }
+
+  /** Registrar vários consumos em paralelo (uma chamada POST /consumos por item) */
+  registrarVarios(items: ConsumoRequestDTO[]): Observable<ConsumoResponseDTO[]> {
+  return forkJoin(items.map(i => this.registrar(i)));
   }
 
   /** Nova base: detalhes completos + total */

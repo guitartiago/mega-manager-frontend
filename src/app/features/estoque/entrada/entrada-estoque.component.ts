@@ -4,17 +4,19 @@ import { ReactiveFormsModule, FormArray, FormBuilder, Validators, FormControl } 
 import { ProdutosService } from '../../produtos/produtos.service';
 import { ProdutoResponseDTO } from '../../produtos/produto.model';
 import { EstoqueService } from '../estoque.service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-entrada-estoque',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './entrada.html',
 })
 export class EntradaEstoqueComponent implements OnInit {
   private fb = inject(FormBuilder);
   private produtosSvc = inject(ProdutosService);
   private estoqueSvc = inject(EstoqueService);
+  private route = inject(ActivatedRoute);
 
   produtos = signal<ProdutoResponseDTO[]>([]);
   salvando = signal(false);

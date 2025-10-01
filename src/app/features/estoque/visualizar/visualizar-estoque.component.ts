@@ -5,11 +5,12 @@ import { ProdutosService } from '../../produtos/produtos.service';
 import { ProdutoResponseDTO } from '../../produtos/produto.model';
 import { EstoqueService } from '../estoque.service';
 import { EntradaEstoqueResponseDTO } from '../estoque.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-visualizar-estoque',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './visualizar.html',
 })
 export class VisualizarEstoqueComponent implements OnInit {
@@ -32,6 +33,14 @@ export class VisualizarEstoqueComponent implements OnInit {
     if (id == null) return null;
     return this.produtos().find(p => p.id === id) ?? null;
   });
+
+  produtoSelecionadoId(): number | null {
+    // se usa Reactive Forms:
+    const id = this.form?.get('produtoId')?.value;
+    return id ?? null;
+
+    // se usa signal/variável, retorne a fonte correspondente.
+  }
 
   // KPIs
   totalQuantidade = computed(() =>

@@ -1,5 +1,13 @@
 <section class="grid gap-4">
-  <h2 class="text-2xl font-bold">Visualizar estoque</h2>
+  <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold">Visualizar estoque</h2>
+      
+      <a class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+          [routerLink]="['/estoque/entrada']"
+          [queryParams]="produtoSelecionadoId() ? { produtoId: produtoSelecionadoId() } : null">
+              Entrada de itens
+      </a>
+  </div>
 
   <!-- O formGroup precisa englobar o select que usa formControlName -->
   <form [formGroup]="form" class="grid gap-4">
