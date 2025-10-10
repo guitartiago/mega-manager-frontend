@@ -37,6 +37,9 @@ import { ToastHostComponent } from '../shared/ui/alert/alert-host';
              
           <a routerLink="/estoque/visualizar" routerLinkActive="text-blue-700 font-medium"
              class="hover:text-black text-gray-700">Estoque</a>
+
+          <a routerLink="/fechamentos" routerLinkActive="text-blue-700 font-medium"
+             class="hover:text-black text-gray-700">Fechamentos</a>
           
         </nav>
 
@@ -79,6 +82,9 @@ import { ToastHostComponent } from '../shared/ui/alert/alert-host';
 
           <a routerLink="/estoque/visualizar" routerLinkActive="bg-gray-100 font-medium"
              class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Estoque</a>
+
+          <a routerLink="/fechamentos" routerLinkActive="bg-gray-100 font-medium"
+             class="px-2 py-2 rounded hover:bg-gray-50" (click)="closeMobile()">Fechamentos</a>
 
           <hr class="my-2">
           <button class="text-left text-red-600 px-2 py-2 rounded hover:bg-red-50"

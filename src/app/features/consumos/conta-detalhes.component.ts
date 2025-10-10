@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConsumoService } from './consumo.service';
 import { DetalheContaDTO, ItemConsumoDTO } from './consumo.model';
+import { FechamentoService } from '../fechamentos/fechamento.service';
+import { AlertService } from '../../shared/ui/alert/alert.service';
 
 type LinhaAgg = {
   nomeProduto: string;
@@ -46,9 +48,10 @@ type GrupoDiaAgg = { data: string; linhas: LinhaAgg[]; subtotal: number };
             [queryParams]="{ clienteId: conta()?.clienteId }">
           Adicionar consumo
         </a>
-        <button class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 ml-auto"
-                [disabled]="fechando() || !conta() || conta()!.itens.length===0"
-                (click)="confirmarFechamento()">
+        <button
+          class="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 ml-auto"
+          [disabled]="fechando() || !conta() || conta()!.itens.length === 0"
+          (click)="confirmarFechamento()">
           {{ fechando() ? 'Processando...' : 'Fechar conta' }}
         </button>
       </div>
@@ -92,6 +95,9 @@ type GrupoDiaAgg = { data: string; linhas: LinhaAgg[]; subtotal: number };
 export class ContaDetalhesComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private svc = inject(ConsumoService);
+  private fechamentoSvc = inject(FechamentoService);
+  private alerts = inject(AlertService);
+  private router = inject(Router);
 
   clienteId!: number;
   conta = signal<DetalheContaDTO | null>(null);
@@ -155,12 +161,35 @@ export class ContaDetalhesComponent implements OnInit {
       });
   });
 
-  confirmarFechamento() {
+  confirmarFechamentoOld() {
     if (!confirm('Confirmar fechamento (pagamento) de toda a conta deste cliente?')) return;
     this.fechando.set(true); this.sucesso.set(false); this.erro.set(null);
-    this.svc.fecharConta(this.clienteId).subscribe({
+    this.fechamentoSvc.fechar(this.clienteId).subscribe({
       next: () => { this.sucesso.set(true); this.reload(); },
       error: e => { console.error(e); this.erro.set('Falha ao fechar a conta.'); },
+      complete: () => this.fechando.set(false),
+    });
+  }
+
+  confirmarFechamento() {
+    if (!confirm('Confirmar fechamento (pagamento) de toda a conta deste cliente?')) return;
+
+    this.sucesso.set(false);
+    this.erro.set(null);
+    this.fechando.set(true);
+
+    this.fechamentoSvc.fechar(this.clienteId).subscribe({
+      next: (resp) => {
+        this.sucesso.set(true);
+        this.alerts.success('Conta fechada', `Total: R$ ${resp.total.toFixed(2)}`);
+        // redireciona para detalhe do fechamento
+        this.router.navigate(['/fechamentos', resp.id]);
+      },
+      error: (e) => {
+        console.error(e);
+        this.erro.set('Falha ao fechar a conta.');
+        this.alerts.error('Erro', e?.error?.message || 'Falha ao fechar a conta.');
+      },
       complete: () => this.fechando.set(false),
     });
   }
